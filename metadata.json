@@ -1,0 +1,6 @@
+{
+  "name": "FG TIME",
+  "description": "FG TIME - Modern green-leaf social media platform with feed, stories, reels, messaging, and profiles",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
