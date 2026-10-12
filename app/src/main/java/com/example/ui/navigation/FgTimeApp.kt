@@ -265,16 +265,22 @@ private fun FgTimeMainScaffold(
                             coroutineScope.launch {
                                 val current = myProfile ?: UserProfile(userId = currentUserId, displayName = "Me")
                                 val convoId = repository.getOrCreateConversation(targetUser, current)
+                                val currentName: String = current.displayName.ifBlank { "Me" }
+                                val targetName: String = targetUser.displayName.ifBlank { "User" }
+                                val currentPhoto: String = current.photoUrl
+                                val targetPhoto: String = targetUser.photoUrl
+                                val targetUid: String = targetUser.userId
+
                                 activeConversation = Conversation(
                                     conversationId = convoId,
-                                    participantIds = listOf(currentUserId, targetUser.userId),
-                                    participantNames = mapOf(
-                                        currentUserId to current.displayName,
-                                        targetUser.userId to targetUser.displayName
+                                    participantIds = listOf(currentUserId, targetUid),
+                                    participantNames = mapOf<String, String>(
+                                        currentUserId to currentName,
+                                        targetUid to targetName
                                     ),
-                                    participantPhotos = mapOf(
-                                        currentUserId to current.photoUrl,
-                                        targetUser.userId to targetUser.photoUrl
+                                    participantPhotos = mapOf<String, String>(
+                                        currentUserId to currentPhoto,
+                                        targetUid to targetPhoto
                                     )
                                 )
                             }
@@ -299,3 +305,9 @@ private fun FgTimeMainScaffold(
         }
     }
 }
+
+@Composable
+fun FGTimeApp() {
+    FgTimeApp()
+}
+

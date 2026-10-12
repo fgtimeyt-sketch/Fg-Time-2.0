@@ -41,6 +41,27 @@ jobs:
             cp .env.example .env || touch .env
           fi
 
+      - name: Verify google-services.json presence
+        run: |
+          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
+            echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > app/google-services.json
+          fi
+          if [ ! -f app/google-services.json ]; then
+            echo "::error::app/google-services.json is missing!"
+            echo "------------------------------------------------------------------"
+            echo "Firebase Configuration is required for FG TIME."
+            echo "Application ID: com.aistudio.fgtime.vksqza"
+            echo "Firebase Project: gen-lang-client-0188920817"
+            echo ""
+            echo "Steps to configure:"
+            echo "1. Go to Firebase Console (https://console.firebase.google.com/project/gen-lang-client-0188920817/settings/general)."
+            echo "2. Under 'Your apps', locate the Android app with package name 'com.aistudio.fgtime.vksqza'."
+            echo "3. Download 'google-services.json'."
+            echo "4. Place 'google-services.json' in the 'app/' directory of this repository, or add its contents as a GitHub repository secret named GOOGLE_SERVICES_JSON."
+            echo "------------------------------------------------------------------"
+            exit 1
+          fi
+
       - name: Decode Debug Keystore if needed
         run: |
           if [ -f debug.keystore.base64 ] && [ ! -f debug.keystore ]; then
@@ -54,6 +75,7 @@ jobs:
         run: gradle assembleDebug
 
       - name: Upload Debug APK Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: FG-TIME-Debug-APK
@@ -62,7 +84,7 @@ jobs:
           retention-days: 14
 
       - name: Create GitHub Release on Tag
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: startsWith(github.ref, 'refs/tags/v') && success()
         uses: softprops/action-gh-release@v2
         with:
           files: app/build/outputs/apk/debug/app-debug.apk
