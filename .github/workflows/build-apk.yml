@@ -42,10 +42,21 @@ jobs:
           fi
 
       - name: Verify google-services.json presence
+        env:
+          GOOGLE_SERVICES_JSON_SECRET: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
         run: |
-          if [ -n "${{ secrets.GOOGLE_SERVICES_JSON }}" ]; then
-            echo "${{ secrets.GOOGLE_SERVICES_JSON }}" > app/google-services.json
+          mkdir -p app
+          if [ ! -f app/google-services.json ]; then
+            if [ -n "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+              echo "Restoring app/google-services.json from GOOGLE_SERVICES_JSON_BASE64 secret..."
+              echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > app/google-services.json
+            elif [ -n "$GOOGLE_SERVICES_JSON_SECRET" ]; then
+              echo "Restoring app/google-services.json from GOOGLE_SERVICES_JSON secret..."
+              printf "%s\n" "$GOOGLE_SERVICES_JSON_SECRET" > app/google-services.json
+            fi
           fi
+
           if [ ! -f app/google-services.json ]; then
             echo "::error::app/google-services.json is missing!"
             echo "------------------------------------------------------------------"
@@ -54,13 +65,23 @@ jobs:
             echo "Firebase Project: gen-lang-client-0188920817"
             echo ""
             echo "Steps to configure:"
-            echo "1. Go to Firebase Console (https://console.firebase.google.com/project/gen-lang-client-0188920817/settings/general)."
+            echo "Option 1: Commit and push 'app/google-services.json' (already generated in AI Studio) to your GitHub repo."
+            echo "Option 2: Add the contents of google-services.json as a GitHub repository secret named GOOGLE_SERVICES_JSON (or base64 encoded as GOOGLE_SERVICES_JSON_BASE64)."
+            echo ""
+            echo "If you need to re-download from Firebase Console:"
+            echo "1. Go to Firebase Console: https://console.firebase.google.com/project/gen-lang-client-0188920817/settings/general"
             echo "2. Under 'Your apps', locate the Android app with package name 'com.aistudio.fgtime.vksqza'."
             echo "3. Download 'google-services.json'."
-            echo "4. Place 'google-services.json' in the 'app/' directory of this repository, or add its contents as a GitHub repository secret named GOOGLE_SERVICES_JSON."
+            echo "4. Place it in the 'app/' directory of this repository."
             echo "------------------------------------------------------------------"
             exit 1
           fi
+
+          if ! grep -q "com.aistudio.fgtime.vksqza" app/google-services.json; then
+            echo "::error::app/google-services.json does not match required package name com.aistudio.fgtime.vksqza!"
+            exit 1
+          fi
+          echo "Verified: app/google-services.json is valid for package com.aistudio.fgtime.vksqza."
 
       - name: Decode Debug Keystore if needed
         run: |
