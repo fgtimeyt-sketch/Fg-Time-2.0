@@ -118,11 +118,10 @@ fun FgTimeApp() {
 
     val currentUser by authViewModel.currentUser.collectAsState()
 
-    // MANDATORY AUTH GATE: Never instantiate feature ViewModels while currentUser == null
-    if (currentUser == null) {
+    val user = currentUser
+    if (user == null) {
         SignInScreen(authViewModel = authViewModel)
     } else {
-        val user = currentUser!!
         FgTimeMainScaffold(
             currentUserId = user.uid,
             repository = repository,

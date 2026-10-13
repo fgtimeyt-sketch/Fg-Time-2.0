@@ -211,15 +211,31 @@ class FgTimeRepository(
         awaitClose { listener.remove() }
     }
 
+    fun observeMyLikedPostIds(userId: String): Flow<Set<String>> = callbackFlow {
+        val likedPostsRef = db.collection("users").document(userId).collection("likedPosts")
+        val listener = likedPostsRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                handleFirestoreError(error, OperationType.LIST, likedPostsRef.path)
+                trySend(emptySet())
+                return@addSnapshotListener
+            }
+            val ids = snapshot?.documents?.mapNotNull { it.id }?.toSet() ?: emptySet()
+            trySend(ids)
+        }
+        awaitClose { listener.remove() }
+    }
+
     suspend fun toggleLike(postId: String, isLiked: Boolean) {
         val uid = requireUserId()
         val postRef = db.collection("posts").document(postId)
         val likeRef = postRef.collection("likes").document(uid)
+        val userLikedRef = db.collection("users").document(uid).collection("likedPosts").document(postId)
 
         try {
             if (isLiked) {
                 // Unlike
                 likeRef.delete().await()
+                userLikedRef.delete().await()
                 postRef.update("likesCount", FieldValue.increment(-1)).await()
             } else {
                 // Like
@@ -228,6 +244,7 @@ class FgTimeRepository(
                     "createdAt" to System.currentTimeMillis()
                 )
                 likeRef.set(likeData).await()
+                userLikedRef.set(mapOf("createdAt" to System.currentTimeMillis())).await()
                 postRef.update("likesCount", FieldValue.increment(1)).await()
             }
         } catch (e: Exception) {

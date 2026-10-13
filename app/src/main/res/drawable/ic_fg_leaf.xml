@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Leaf base shape -->
+    <path
+        android:fillColor="#00C853"
+        android:pathData="M48,10 C24,20 12,46 22,70 C28,84 42,88 48,88 C54,88 68,84 74,70 C84,46 72,20 48,10 Z" />
+    <!-- Leaf central vein -->
+    <path
+        android:strokeColor="#12372A"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M48,18 C48,42 48,68 48,84" />
+    <!-- Side veins -->
+    <path
+        android:strokeColor="#12372A"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M48,34 C56,30 62,32 64,36 M48,46 C38,42 32,44 30,49 M48,56 C57,52 63,55 65,60 M48,66 C40,63 34,65 32,70" />
+</vector>
