@@ -1,0 +1,89 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile with display name, bio, and follow metrics",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "username": { "type": "string" },
+        "bio": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "followersCount": { "type": "number" },
+        "followingCount": { "type": "number" },
+        "postsCount": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["userId", "displayName", "username"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "User created post with photo/video media and engagement counts",
+      "type": "object",
+      "properties": {
+        "postId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorUsername": { "type": "string" },
+        "authorPhotoUrl": { "type": "string" },
+        "caption": { "type": "string" },
+        "mediaUrl": { "type": "string" },
+        "mediaType": { "type": "string" },
+        "likesCount": { "type": "number" },
+        "commentsCount": { "type": "number" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["postId", "authorId", "mediaUrl"]
+    },
+    "Story": {
+      "title": "Story",
+      "description": "24-hour temporary story media item",
+      "type": "object",
+      "properties": {
+        "storyId": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorUsername": { "type": "string" },
+        "authorPhotoUrl": { "type": "string" },
+        "mediaUrl": { "type": "string" },
+        "caption": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["storyId", "authorId", "mediaUrl"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Direct message within a private conversation thread",
+      "type": "object",
+      "properties": {
+        "messageId": { "type": "string" },
+        "conversationId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "recipientId": { "type": "string" },
+        "text": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "createdAt": { "type": "number" }
+      },
+      "required": ["messageId", "conversationId", "senderId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document indexed by user UID"
+    },
+    "/posts/{postId}": {
+      "schema": "Post",
+      "description": "Public post documents"
+    },
+    "/stories/{storyId}": {
+      "schema": "Story",
+      "description": "Ephemeral user stories"
+    },
+    "/conversations/{conversationId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Direct message entries within conversations"
+    }
+  }
+}
